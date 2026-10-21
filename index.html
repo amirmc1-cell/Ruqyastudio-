@@ -1,1 +1,400 @@
-# Ruqyastudio-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ruqyah Biometric Studio & Full Clinical Command Center</title>
+  
+  <!-- Daily.co Video SDK -->
+  <script crossorigin src="https://unpkg.com/@daily-co/daily-js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Amiri&display=swap');
+
+    :root {
+      --bg-dark: #080c14;
+      --card-bg: #0f172a;
+      --card-border: #1e293b;
+      --accent-teal: #0db7a6;
+      --accent-cyan: #38bdf8;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --accent-purple: #c084fc;
+      --text-main: #f8fafc;
+      --text-muted: #64748b;
+      --text-sub: #94a3b8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+    body { background-color: var(--bg-dark); color: var(--text-main); padding: 12px 10px; display: flex; justify-content: center; }
+    .app-container { width: 100%; max-width: 410px; display: flex; flex-direction: column; gap: 12px; }
+    
+    .view-switcher { display: flex; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 4px; gap: 4px; }
+    .switch-btn { flex: 1; background: transparent; border: none; color: var(--text-muted); padding: 9px; font-size: 10px; font-weight: 700; border-radius: 8px; cursor: pointer; text-transform: uppercase; }
+    .switch-btn.active { background: var(--accent-teal); color: #080c14; }
+    
+    .view-section { display: none; flex-direction: column; gap: 12px; }
+    .view-section.active { display: flex; }
+
+    .app-header { display: flex; justify-content: space-between; align-items: center; padding: 2px 0; }
+    .brand-box { display: flex; align-items: center; gap: 8px; }
+    .brand-icon { width: 34px; height: 34px; background: var(--accent-teal); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #080c14; font-weight: 800; font-size: 16px; }
+    .brand-title { font-size: 12px; font-weight: 800; color: #ffffff; }
+    .brand-sub { font-size: 8px; color: var(--text-muted); }
+    .avatar-circle { width: 30px; height: 30px; border-radius: 50%; background: #1e293b; border: 1px solid #334155; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #94a3b8; font-weight: 700; }
+
+    .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
+    .card-header-row { display: flex; justify-content: space-between; align-items: center; }
+    .section-heading { font-size: 10px; font-weight: 800; color: var(--accent-teal); text-transform: uppercase; }
+
+    .quran-header { display: flex; justify-content: space-between; align-items: center; }
+    .quran-title { font-size: 10px; color: var(--accent-emerald); font-weight: 700; }
+    .quran-step { font-size: 9px; color: var(--accent-teal); font-weight: 700; }
+    
+    .recitation-box { background-color: #060911; border: 1px solid var(--card-border); border-radius: 8px; padding: 10px; min-height: 80px; max-height: 180px; overflow-y: auto; direction: rtl; text-align: justify; font-size: 12px; line-height: 1.6; color: #a7f3d0; }
+    .verse-marker { color: var(--accent-teal); font-size: 9px; padding: 0 2px; }
+
+    .action-btn-teal { background-color: var(--accent-teal); color: #080c14; border: none; padding: 8px 12px; border-radius: 8px; font-weight: 700; width: 100%; cursor: pointer; font-size: 10px; }
+    .nav-buttons { display: flex; gap: 6px; }
+    .btn-outline { background: transparent; border: 1px solid var(--card-border); color: var(--text-main); padding: 6px 8px; border-radius: 8px; font-size: 10px; flex: 1; cursor: pointer; text-align: center; font-weight: 600; }
+    .btn-solid { background: var(--accent-teal); border: none; color: #080c14; padding: 6px 8px; border-radius: 8px; font-size: 10px; flex: 1; cursor: pointer; text-align: center; font-weight: 700; }
+
+    .badge-row { display: flex; gap: 6px; flex-wrap: wrap; }
+    .pill-badge { background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); padding: 4px 8px; border-radius: 8px; font-size: 9px; color: #94a3b8; }
+    .pill-badge.active { border-color: rgba(13,183,166,0.4); color: var(--accent-teal); }
+
+    .feed-viewport { position: relative; background: #060911; border: 1px solid var(--card-border); border-radius: 12px; padding: 10px; height: 320px; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; }
+    .female-mode-badge { background: rgba(255,255,255,0.05); border: 1px solid var(--card-border); padding: 6px 10px; border-radius: 8px; font-size: 9px; color: #94a3b8; z-index: 10; position: relative; width: fit-content; }
+    .controls-row { display: flex; gap: 6px; align-items: center; z-index: 10; position: relative; }
+    .end-call-btn { background: var(--accent-rose); color: #ffffff; border: none; padding: 0 12px; height: 34px; border-radius: 8px; font-size: 10px; font-weight: 700; cursor: pointer; }
+
+    .metrics-2x2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .metric-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 6px; }
+    .metric-top { display: flex; justify-content: space-between; font-size: 9px; color: var(--text-muted); }
+    .metric-value-row { display: flex; align-items: baseline; gap: 4px; }
+    .metric-num { font-size: 16px; font-weight: 800; }
+    .metric-unit { font-size: 8.5px; color: var(--text-muted); }
+    .bar-bg { height: 3px; background: #060911; border-radius: 2px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 2px; }
+
+    .record-pill { border: 1px solid rgba(13, 183, 166, 0.4); background: rgba(13, 183, 166, 0.08); color: var(--accent-teal); padding: 5px 10px; border-radius: 10px; font-size: 8px; font-weight: 700; text-transform: uppercase; }
+    .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; padding-top: 4px; }
+    .detail-item { display: flex; flex-direction: column; gap: 2px; }
+    .detail-label { font-size: 8px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+    .detail-val { font-size: 11px; font-weight: 700; color: #ffffff; }
+
+    .reaction-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+    .tag-rose { background: rgba(244, 63, 94, 0.12); border: 1px solid rgba(244, 63, 94, 0.4); color: #fca5a5; padding: 4px 7px; border-radius: 6px; font-size: 8.5px; font-weight: 600; }
+    .tag-teal { background: rgba(13, 183, 166, 0.12); border: 1px solid rgba(13, 183, 166, 0.4); color: #6ee7b7; padding: 4px 7px; border-radius: 6px; font-size: 8.5px; font-weight: 600; }
+    .tag-amber { background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.4); color: #fcd34d; padding: 4px 7px; border-radius: 6px; font-size: 8.5px; font-weight: 600; }
+    .tag-gray { background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); color: var(--text-muted); padding: 4px 7px; border-radius: 6px; font-size: 8.5px; font-weight: 500; }
+
+    .action-btn { background: var(--accent-teal); color: #080c14; border: none; padding: 11px; border-radius: 10px; font-size: 10.5px; font-weight: 800; cursor: pointer; text-transform: uppercase; width: 100%; text-align: center; }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  <!-- VIEW SWITCHER -->
+  <div class="view-switcher">
+    <button class="switch-btn active" onclick="switchView('studio')">Live Studio View</button>
+    <button class="switch-btn" onclick="switchView('report')">Clinical Report View</button>
+  </div>
+
+  <!-- STUDIO VIEW -->
+  <div id="studio-view" class="view-section active">
+    <div class="app-header">
+      <div class="brand-box">
+        <div class="brand-icon">ر</div>
+        <div>
+          <div class="brand-title">RUQYAH BIOMETRIC STUDIO</div>
+          <div class="brand-sub">Practitioner Analytics Command Center</div>
+        </div>
+      </div>
+      <div class="avatar-circle">DA</div>
+    </div>
+
+    <!-- RECITATION STEPPER CARD -->
+    <div class="card">
+      <div class="quran-header">
+        <span class="quran-title" id="verseTitle">1. Surah Al-Fatihah (7 Repetitions)</span>
+        <span class="quran-step" id="stepIndicator">Step 1 / 8</span>
+      </div>
+      <div class="recitation-box" id="recitationContent"></div>
+      <button class="action-btn-teal" id="countBtn">Count Repetition (<span id="repCounter">0</span> / <span id="repTarget">7</span>)</button>
+      <div class="nav-buttons">
+        <button class="btn-outline" id="prevBtn">Previous Step</button>
+        <button class="btn-solid" id="nextBtn">Next Step</button>
+      </div>
+    </div>
+
+    <!-- DAILY.CO VIDEO STREAM CARD -->
+    <div class="card">
+      <div class="badge-row">
+        <div class="pill-badge active">Daily.co WebRTC Stream</div>
+        <div class="pill-badge">Room: AzraZuban</div>
+      </div>
+      <div class="feed-viewport" id="video-container">
+        <div class="female-mode-badge">♀ Female Screening Mode Active</div>
+        <div class="controls-row">
+          <button class="action-btn-teal" onclick="startCall()" style="flex: 1;">Start Live Session</button>
+          <button class="end-call-btn" onclick="leaveCall()">End</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- LIVE METRICS CARD -->
+    <div class="metrics-2x2">
+      <div class="metric-card">
+        <div class="metric-top"><span>Heart Rate (rPPG)</span><span style="color:var(--accent-emerald);">● Live</span></div>
+        <div class="metric-value-row"><span class="metric-num" style="color:#6EE7B7;" id="hrDisplay">108</span><span class="metric-unit">BPM</span></div>
+        <div class="bar-bg"><div class="bar-fill" id="hrBar" style="width: 85%; background:#10b981;"></div></div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-top"><span>Blood Perfusion</span><span style="color:#38bdf8;">● Live</span></div>
+        <div class="metric-value-row"><span class="metric-num" style="color:#38BDF8;" id="perfDisplay">2.1</span><span class="metric-unit">% PI</span></div>
+        <div class="bar-bg"><div class="bar-fill" id="perfBar" style="width: 35%; background:#38bdf8;"></div></div>
+      </div>
+    </div>
+
+    <button class="action-btn" onclick="switchView('report')">View Final Clinical Report →</button>
+  </div>
+
+  <!-- CLINICAL REPORT VIEW (FULL 49 SYMPTOMS) -->
+  <div id="report-view" class="view-section">
+    <div class="card">
+      <div class="card-header-row">
+        <div class="brand-box">
+          <div class="brand-icon">ر</div>
+          <div>
+            <div class="brand-title">RUQYAH BIOMETRIC STUDIO</div>
+            <div class="brand-sub">Client Session Summary & Body Response Report</div>
+          </div>
+        </div>
+        <div class="record-pill">Official Record</div>
+      </div>
+      <div class="details-grid">
+        <div class="detail-item"><span class="detail-label">Client Name</span><span class="detail-val">Fatima Ali</span></div>
+        <div class="detail-item"><span class="detail-label">Practitioner</span><span class="detail-val">Dr. Ammar (DA-9042)</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header-row">
+        <div class="section-heading">49 Body Symptoms Checked</div>
+        <span style="font-size: 8px; color: var(--accent-teal); font-weight: 700;">Read-Only Matrix</span>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 8px; max-height: 250px; overflow-y: auto; padding-right: 4px;">
+        <div>
+          <div style="font-size: 8px; font-weight: 700; color: var(--accent-amber); margin-bottom: 3px;">1. STOMACH & DIGESTION</div>
+          <div class="reaction-tags">
+            <span class="tag-rose">#1 Nausea / Vomiting</span>
+            <span class="tag-rose">#2 Mucus or Bile Spitting</span>
+            <span class="tag-rose">#3 Heavy Belching</span>
+            <span class="tag-gray">#4 Stomach Gas</span>
+            <span class="tag-gray">#5 Stomach Cramps</span>
+            <span class="tag-gray">#6 Appetite Changes</span>
+          </div>
+        </div>
+
+        <div>
+          <div style="font-size: 8px; font-weight: 700; color: var(--accent-cyan); margin-bottom: 3px;">2. BODY FEELINGS & TEMPERATURE</div>
+          <div class="reaction-tags">
+            <span class="tag-gray">#7 Hot / Burning</span>
+            <span class="tag-gray">#8 Chills & Shivering</span>
+            <span class="tag-gray">#9 Pins & Needles</span>
+            <span class="tag-gray">#10 Heavy Sweating</span>
+            <span class="tag-gray">#11 Electric Jolt</span>
+            <span class="tag-gray">#12 Moving Pains</span>
+            <span class="tag-gray">#13 Skin Crawling</span>
+            <span class="tag-gray">#14 Itching</span>
+          </div>
+        </div>
+
+        <div>
+          <div style="font-size: 8px; font-weight: 700; color: var(--accent-purple); margin-bottom: 3px;">3. MUSCLE & MOVEMENT</div>
+          <div class="reaction-tags">
+            <span class="tag-rose">#15 Hand / Body Shaking</span>
+            <span class="tag-gray">#16 Muscle Twitches</span>
+            <span class="tag-gray">#17 Spasms</span>
+            <span class="tag-teal">#18 Heavy Yawning</span>
+            <span class="tag-gray">#19 Watery Eyes</span>
+            <span class="tag-gray">#20 Sneezing</span>
+          </div>
+        </div>
+
+        <div>
+          <div style="font-size: 8px; font-weight: 700; color: var(--accent-rose); margin-bottom: 3px;">4. HEAD, BREATHING & HEART</div>
+          <div class="reaction-tags">
+            <span class="tag-gray">#21 Headaches</span>
+            <span class="tag-gray">#22 Dizziness</span>
+            <span class="tag-gray">#23 Tight Chest</span>
+            <span class="tag-rose">#24 Fast Heart Beat</span>
+            <span class="tag-rose">#25 Coughing / Choking</span>
+            <span class="tag-gray">#26 Face Color Changes</span>
+            <span class="tag-gray">#27 Blurry Vision</span>
+          </div>
+        </div>
+
+        <div>
+          <div style="font-size: 8px; font-weight: 700; color: #a7f3d0; margin-bottom: 3px;">5. SLEEPINESS & VOICE</div>
+          <div class="reaction-tags">
+            <span class="tag-gray">#28 Deep Drowsiness</span>
+            <span class="tag-gray">#29 Brief Fainting</span>
+            <span class="tag-gray">#30 Voice Tone Change</span>
+          </div>
+        </div>
+
+        <div>
+          <div style="font-size: 8px; font-weight: 700; color: var(--accent-emerald); margin-bottom: 3px;">6. AFTER-SESSION FEELINGS</div>
+          <div class="reaction-tags">
+            <span class="tag-gray">#31 Tiredness</span>
+            <span class="tag-teal">#32 Light & Relaxed</span>
+            <span class="tag-gray">#33 Bruises</span>
+            <span class="tag-gray">#34 Body Aches</span>
+            <span class="tag-gray">#35 Sleep Paralysis</span>
+            <span class="tag-gray">#36 Restroom Urge</span>
+          </div>
+        </div>
+
+        <div>
+          <div style="font-size: 8px; font-weight: 700; color: var(--accent-teal); margin-bottom: 3px;">7. SENSORY & TASTE CHANGES</div>
+          <div class="reaction-tags">
+            <span class="tag-gray">#37 Bitter / Metallic Taste</span>
+            <span class="tag-gray">#38 Ear Popping</span>
+            <span class="tag-gray">#39 Runny Nose</span>
+            <span class="tag-gray">#40 Strange Scents</span>
+          </div>
+        </div>
+
+        <div>
+          <div style="font-size: 8px; font-weight: 700; color: #fca5a5; margin-bottom: 3px;">8. INTERNAL BODY SHIFTS</div>
+          <div class="reaction-tags">
+            <span class="tag-amber">#41 Blood Pressure Shift</span>
+            <span class="tag-gray">#42 Heavy Limb / Tongue</span>
+            <span class="tag-gray">#43 Body Odor Change</span>
+            <span class="tag-gray">#44 Tailbone Pressure</span>
+          </div>
+        </div>
+
+        <div>
+          <div style="font-size: 8px; font-weight: 700; color: #e2e8f0; margin-bottom: 3px;">9. SKIN MARKS & PATTERNS</div>
+          <div class="reaction-tags">
+            <span class="tag-gray">#45 Skin Rashes</span>
+            <span class="tag-gray">#46 Nail Color Changes</span>
+            <span class="tag-gray">#47 Quiet Session</span>
+            <span class="tag-gray">#48 Mild Lingering Tiredness</span>
+            <span class="tag-amber">#49 Short Reaction Spike</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="action-btn" onclick="switchView('studio')">← Back to Studio View</button>
+  </div>
+</div>
+
+<script>
+  function switchView(viewName) {
+    document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.switch-btn').forEach(el => el.classList.remove('active'));
+    if (viewName === 'studio') {
+      document.getElementById('studio-view').classList.add('active');
+      document.querySelectorAll('.switch-btn')[0].classList.add('active');
+    } else {
+      document.getElementById('report-view').classList.add('active');
+      document.querySelectorAll('.switch-btn')[1].classList.add('active');
+    }
+  }
+
+  let callFrame = null;
+
+  async function startCall() {
+    const container = document.getElementById('video-container');
+    const roomUrl = "https://ruqyahhub.daily.co/AzraZuban";
+
+    if (!callFrame) {
+      callFrame = window.DailyIframe.createFrame(container, {
+        showLeaveButton: true,
+        iframeStyle: { position: 'absolute', top: '0', left: '0', width: '100%', height: '100%', border: '0', borderRadius: '12px', zIndex: '5' }
+      });
+    }
+
+    try {
+      await callFrame.join({ url: roomUrl });
+    } catch (error) {
+      alert("Could not connect to video session. Please check permissions.");
+    }
+  }
+
+  async function leaveCall() {
+    if (callFrame) {
+      await callFrame.leave();
+      callFrame.destroy();
+      callFrame = null;
+    }
+  }
+
+  // Full 8-Step Quranic Sequence & Dynamic Heart Rate Fluctuation
+  document.addEventListener('DOMContentLoaded', function() {
+    const fullRuqyahSequence = [
+      { title: "1. Surah Al-Fatihah (7 Repetitions)", reps: 7, text: "بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ <span class='verse-marker'>﴿١﴾</span> ٱلْحَمْدُ لِلَّهِ رَبِّ ٱلْعَـٰلَمِينَ <span class='verse-marker'>﴿٢﴾</span>" },
+      { title: "2. Surah Al-Baqarah 1-5 (3 Repetitions)", reps: 3, text: "الم <span class='verse-marker'>﴿١﴾</span> ذَٰلِكَ ٱلْكِتَـٰبُ لَا رَيْبَ ۛ فِيهِ ۛ هُدًى لِّلْمُتَّقِينَ <span class='verse-marker'>﴿٢﴾</span>" },
+      { title: "3. Ayat Al-Kursi (3 Repetitions)", reps: 3, text: "ٱللَّهُ لَآ إِلَـٰهَ إِلَّا هُوَ ٱلْحَىُّ ٱلْقَيُّومُ ۚ لَا تَأْخُذُهُۥ سِنَةٌ۠ وَلَا نَوْمٌ <span class='verse-marker'>﴿٢٥٥﴾</span>" },
+      { title: "4. Surah Al-Baqarah 163-164 (3 Repetitions)", reps: 3, text: "وَإِلُـٰهُكُمْ إِلَـٰهٌ وٰحِدٌ ۖ لَّا إِلَـٰهَ إِلَّا هُوَ ٱلرَّحْمَـٰنُ ٱلرَّحِيمُ <span class='verse-marker'>﴿١٦٣﴾</span>" },
+      { title: "5. Surah Al-Baqarah 285-286 (1 Repetition)", reps: 1, text: "آمَنَ الرَّسُولُ بِمَا أُنزِلَ إِلَيْهِ مِن رَّبِّهِ وَالْمُؤْمِنُونَ <span class='verse-marker'>﴿٢٨٥﴾</span>" },
+      { title: "6. Verses Invalidation of Sorcery (7 Repetitions)", reps: 7, text: "وَأَوْحَيْنَا إِلَىٰ مُوسَىٰ أَنْ أَصْغِ عَصَاكَ ۖ فَإِذَا هِيَ تَلْقَفُ مَا يَأْفِكُونَ <span class='verse-marker'>﴿١١٧﴾</span>" },
+      { title: "7. Al-Mu'awwidhatayn (Surah Al-Falaq & An-Nas)", reps: 3, text: "قُلْ أَعُوذُ بِرَبِّ الْفَلَقِ <span class='verse-marker'>﴿١﴾</span> مِن شَرِّ مَا خَلَقَ <span class='verse-marker'>﴿٢﴾</span>" },
+      { title: "8. Closing Duas & Shifa", reps: 3, text: "أَذْهِبِ الْبَاسَ رَبَّ النَّاسِ، وَاشْفِ أَنْتَ الشَّافِي، لَا شِفَاءَ إِلَّا شِفَاؤُكَ" }
+    ];
+
+    let currentIdx = 0;
+    let currentRep = 0;
+
+    function renderStep() {
+      const step = fullRuqyahSequence[currentIdx];
+      document.getElementById('verseTitle').innerText = step.title;
+      document.getElementById('repTarget').innerText = step.reps;
+      document.getElementById('repCounter').innerText = currentRep;
+      document.getElementById('stepIndicator').innerText = `Step ${currentIdx + 1} / ${fullRuqyahSequence.length}`;
+      document.getElementById('recitationContent').innerHTML = step.text;
+    }
+
+    document.getElementById('countBtn').onclick = function() {
+      if (currentRep < fullRuqyahSequence[currentIdx].reps) {
+        currentRep++;
+        document.getElementById('repCounter').innerText = currentRep;
+      }
+    };
+
+    document.getElementById('nextBtn').onclick = function() {
+      if (currentIdx < fullRuqyahSequence.length - 1) {
+        currentIdx++;
+        currentRep = 0;
+        renderStep();
+      }
+    };
+
+    document.getElementById('prevBtn').onclick = function() {
+      if (currentIdx > 0) {
+        currentIdx--;
+        currentRep = 0;
+        renderStep();
+      }
+    };
+
+    renderStep();
+
+    // Subtle Live Metric Simulation Pulse
+    setInterval(() => {
+      const randomHR = Math.floor(Math.random() * (114 - 98 + 1)) + 98;
+      document.getElementById('hrDisplay').innerText = randomHR;
+      document.getElementById('hrBar').style.width = Math.min(100, (randomHR / 150) * 100) + '%';
+    }, 3000);
+  });
+</script>
+</body>
+</html>
+
